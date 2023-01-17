@@ -1,17 +1,18 @@
 const Meta = imports.gi.Meta;
 
-let windowCreatedId;
+const _eventIds = [];
 const _gap = 20;
 
 function init() {
 }
 
 function enable() {
-    windowCreatedId = global.display.connect('window-created', onWindowCreated);
+    _eventIds.push(global.display.connect('window-created', onWindowCreated));
+    _eventIds.push(global.display.connect('window-entered-monitor', onWindowEnteredMonitor));
 }
 
 function disable() {
-    global.display.disconnect(windowCreatedId);
+    _eventIds.forEach(e => global.display.disconnect(e));
 }
 
 function onWindowCreated(_, win) {
@@ -20,6 +21,10 @@ function onWindowCreated(_, win) {
         resizeWindow(win);
         act.disconnect(id);
     });
+}
+
+function onWindowEnteredMonitor(_, _, win) {
+    resizeWindow(win);
 }
 
 function resizeWindow(win) {
