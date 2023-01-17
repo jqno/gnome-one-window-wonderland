@@ -31,6 +31,10 @@ function onWindowEnteredMonitor(_, _, win) {
 }
 
 function resizeWindow(win) {
+    if (!managedWindow(win)) {
+        return;
+    }
+
     const monitor = win.get_monitor();
     const workspace = win.get_workspace();
     const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
@@ -44,3 +48,7 @@ function resizeWindow(win) {
     win.move_resize_frame(false, x, y, w, h);
 }
 
+function managedWindow(win) {
+    const type = win.get_window_type();
+    return type === Meta.WindowType.NORMAL && win.allows_resize();
+}
