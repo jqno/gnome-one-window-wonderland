@@ -17,6 +17,9 @@ function disable() {
 
 function onWindowCreated(_, win) {
     const act = win.get_compositor_private();
+    if (!act) {
+        return;
+    }
     const id = act.connect('first-frame', _ => {
         resizeWindow(win);
         act.disconnect(id);
