@@ -1,3 +1,4 @@
+const ExtensionUtils = imports.misc.extensionUtils;
 const Meta = imports.gi.Meta;
 
 class Extension {
@@ -8,6 +9,10 @@ class Extension {
     }
 
     enable() {
+        this.settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.one-window-wonderland');
+        this.settings.connect('changed::gap-size', () => { this.initSettings(); });
+        this.initSettings();
+
         this.eventIds = [
             global.display.connect('window-created', (_, win) => { this.onWindowCreated(win); }),
             global.display.connect('window-entered-monitor', (_1, _2, win) => { this.onWindowEnteredMonitor(win); })
@@ -16,6 +21,10 @@ class Extension {
 
     disable() {
         this.eventIds.forEach(e => { global.display.disconnect(e); });
+    }
+
+    initSettings() {
+        this.gap = this.settings.get_int('gap-size');
     }
 
     onWindowCreated(win) {

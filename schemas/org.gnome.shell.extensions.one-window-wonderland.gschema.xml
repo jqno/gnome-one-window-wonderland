@@ -1,0 +1,8 @@
+<schemalist>
+  <schema id="org.gnome.shell.extensions.one-window-wonderland" path="/org/gnome/shell/extensions/one-window-wonderland/">
+    <key name="gap-size" type="i">
+      <default>20</default>
+      <summary>The size of the gap around the window, in pixels</summary>
+    </key>
+  </schema>
+</schemalist>
