@@ -14,8 +14,8 @@ class Extension {
         this.initSettings();
 
         this.eventIds = [
-            global.display.connect('window-created', (_, win) => { this.onWindowCreated(win); }),
-            global.display.connect('window-entered-monitor', (_1, _2, win) => { this.onWindowEnteredMonitor(win); })
+            global.display.connect('window-created', (_display, win) => { this.onWindowCreated(win); }),
+            global.display.connect('window-entered-monitor', (_display, _monitorIndex, win) => { this.onWindowEnteredMonitor(win); })
         ];
     }
 
@@ -32,7 +32,7 @@ class Extension {
         if (!act) {
             return;
         }
-        const id = act.connect('first-frame', _ => {
+        const id = act.connect('first-frame', _params => {
             this.resizeWindow(win);
             act.disconnect(id);
         });
