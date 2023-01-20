@@ -1,6 +1,6 @@
 {
   "name": "One Window Wonderland",
-  "description": "Automatically maximizes new windows, respecting gaps",
+  "description": "Automatically maximizes new windows, leaving 'useless gaps' around them",
   "uuid": "gnome-one-window-wonderland@jqno.nl",
   "shell-version": [
     "43"
