@@ -10,7 +10,7 @@ class Extension {
 
     enable() {
         this.settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.one-window-wonderland');
-        this.settings.connect('changed::gap-size', () => { this.initSettings(); });
+        this.settingId = this.settings.connect('changed::gap-size', () => { this.initSettings(); });
         this.initSettings();
 
         this.eventIds = [
@@ -21,6 +21,9 @@ class Extension {
 
     disable() {
         this.eventIds.forEach(e => { global.display.disconnect(e); });
+        if (this.settingId) {
+            this.settings.disconnect(this.settingId);
+        }
     }
 
     initSettings() {
