@@ -24,6 +24,8 @@ class Extension {
         if (this.settingId) {
             this.settings.disconnect(this.settingId);
         }
+        this.settings = null;
+        this.eventIds = [];
     }
 
     initSettings() {
