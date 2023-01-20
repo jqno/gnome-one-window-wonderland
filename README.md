@@ -4,6 +4,8 @@ A GNOME Shell extension that automatically maximizes new windows, leaving "usele
 
 ![A screenshot of One Window Wonderland in action](screenshot.png)
 
+Get it on [extensions.gnome.org](https://extensions.gnome.org/extension/5696/one-window-wonderland/)!
+
 # Motivation
 
 - Working on a laptop with limited screen real estate, I like my windows to be maximized. This provides focus.
