@@ -4,6 +4,8 @@ const GLib = imports.gi.GLib;
 
 class Extension {
 
+    misbehavingWindows = ['Firefox'];
+
     constructor() {
         this.eventIds = [];
         this.gap = 20;
@@ -53,25 +55,47 @@ class Extension {
             return;
         }
 
-        const monitor = win.get_monitor();
-        const workspace = win.get_workspace();
-        const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
-
-        const x = monitorWorkArea.x + this.gap;
-        const y = monitorWorkArea.y + this.gap;
-        const w = monitorWorkArea.width - (2 * this.gap);
-        const h = monitorWorkArea.height - (2 * this.gap);
-
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            win.unmaximize(Meta.MaximizeFlags.BOTH);
-            win.move_resize_frame(false, x, y, w, h);
-            return GLib.SOURCE_REMOVE;
-        });
+        if (this.isMisbehavingWindow(win)) {
+            const id = win.connect('position-changed', () => {
+                this.performResize(win);
+                win.disconnect(id);
+            });
+        }
+        else {
+            this.performResize(win);
+        }
     }
 
     isManagedWindow(win) {
         const type = win.get_window_type();
         return type === Meta.WindowType.NORMAL && win.allows_resize();
+    }
+
+    isMisbehavingWindow(win) {
+        for (let i = 0; i < this.misbehavingWindows.length; i++) {
+            if (win.get_title().indexOf(this.misbehavingWindows[i]) !== -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    performResize(win) {
+        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            const monitor = win.get_monitor();
+            const workspace = win.get_workspace();
+            const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
+
+            const x = monitorWorkArea.x + this.gap;
+            const y = monitorWorkArea.y + this.gap;
+            const w = monitorWorkArea.width - (2 * this.gap);
+            const h = monitorWorkArea.height - (2 * this.gap);
+
+            win.unmaximize(Meta.MaximizeFlags.BOTH);
+            win.move_resize_frame(false, x, y, w, h);
+
+            return GLib.SOURCE_REMOVE;
+        });
     }
 }
 
