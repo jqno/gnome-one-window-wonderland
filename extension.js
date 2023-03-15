@@ -1,5 +1,6 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Meta = imports.gi.Meta;
+const GLib = imports.gi.GLib;
 
 class Extension {
 
@@ -61,8 +62,11 @@ class Extension {
         const w = monitorWorkArea.width - (2 * this.gap);
         const h = monitorWorkArea.height - (2 * this.gap);
 
-        win.unmaximize(Meta.MaximizeFlags.BOTH);
-        win.move_resize_frame(false, x, y, w, h);
+        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            win.unmaximize(Meta.MaximizeFlags.BOTH);
+            win.move_resize_frame(false, x, y, w, h);
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     isManagedWindow(win) {
