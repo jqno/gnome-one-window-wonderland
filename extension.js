@@ -8,6 +8,8 @@ class Extension {
 
     constructor() {
         this.eventIds = [];
+        this.glibIdleId = null;
+        this.settingId = null;
         this.gap = 20;
     }
 
@@ -24,6 +26,10 @@ class Extension {
 
     disable() {
         this.eventIds.forEach(e => { global.display.disconnect(e); });
+        if (this.glibIdleId) {
+            GLib.Source.remove(this.glibIdleId);
+            this.glibIdleId = null;
+        }
         if (this.settingId) {
             this.settings.disconnect(this.settingId);
         }
@@ -81,7 +87,7 @@ class Extension {
     }
 
     performResize(win) {
-        GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        this.glibIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             const monitor = win.get_monitor();
             const workspace = win.get_workspace();
             const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
