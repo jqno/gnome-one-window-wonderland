@@ -33,6 +33,12 @@ This extension works well alongside such extensions as [Useless Gaps](https://ex
 
 It doesn't work with full blown tiling window manager extensions like [Material Shell](https://material-shell.com/).
 
+# Building
+
+In order to install this extension locally, run `./build.sh local`.
+
+In order to create a package for upload to extensions.gnome.org, run `./build.sh package`.
+
 # Contributing
 
 I'm open for issues and PRs, but keep in mind that I may not have time to respond quickly.
