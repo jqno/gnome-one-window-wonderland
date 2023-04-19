@@ -5,6 +5,7 @@
   "url": "https://github.com/jqno/gnome-one-window-wonderland/",
   "version": 1,
   "shell-version": [
-    "43"
+    "43",
+    "44"
   ]
 }
