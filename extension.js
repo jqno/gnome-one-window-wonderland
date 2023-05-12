@@ -5,15 +5,15 @@ const Shell = imports.gi.Shell;
 
 class Extension {
 
-    misbehavingWindows = ['Firefox'];
-
     constructor() {
         this.eventIds = [];
+        this.windowEventIds = [];
         this.glibIdleId = null;
         this.settingId = null;
         this.tracker = null;
 
         this.gapSize = 20;
+        this.forceList = [];
         this.blockList = [];
     }
 
@@ -31,6 +31,8 @@ class Extension {
 
     disable() {
         this.eventIds.forEach(e => { global.display.disconnect(e); });
+        this.windowEventIds.forEach(e => e());
+
         if (this.glibIdleId) {
             GLib.Source.remove(this.glibIdleId);
             this.glibIdleId = null;
@@ -44,6 +46,7 @@ class Extension {
 
     initSettings() {
         this.gapSize = this.settings.get_int('gap-size');
+        this.forceList = this.settings.get_string('force-list').split(',');
         this.blockList = this.settings.get_string('block-list').split(',');
     }
 
@@ -56,6 +59,18 @@ class Extension {
             this.resizeWindow(win);
             act.disconnect(id);
         });
+
+        const appName = this.getAppName(win);
+        if (this.isForcedWindow(appName)) {
+            const resizeId = win.connect('position-changed', () => {
+                this.resizeWindow(win);
+            });
+            const sizeChangeId = win.connect('size-changed', () => {
+                this.resizeWindow(win);
+            });
+            this.windowEventIds.push(() => win.disconnect(resizeId));
+            this.windowEventIds.push(() => win.disconnect(sizeChangeId));
+        }
     }
 
     onWindowEnteredMonitor(win) {
@@ -64,20 +79,25 @@ class Extension {
 
     resizeWindow(win) {
         const appName = this.getAppName(win);
-
         if (appName == null || !this.isManagedWindow(win) || this.isBlockListedWindow(appName)) {
             return;
         }
 
-        if (this.isMisbehavingWindow(appName)) {
-            const id = win.connect('position-changed', () => {
-                this.performResize(win);
-                win.disconnect(id);
-            });
-        }
-        else {
-            this.performResize(win);
-        }
+        this.glibIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            const monitor = win.get_monitor();
+            const workspace = win.get_workspace();
+            const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
+
+            const x = monitorWorkArea.x + this.gapSize;
+            const y = monitorWorkArea.y + this.gapSize;
+            const w = monitorWorkArea.width - (2 * this.gapSize);
+            const h = monitorWorkArea.height - (2 * this.gapSize);
+
+            win.unmaximize(Meta.MaximizeFlags.BOTH);
+            win.move_resize_frame(false, x, y, w, h);
+
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     getAppName(win) {
@@ -97,8 +117,8 @@ class Extension {
         return this.isWindowMatching(appName, this.blockList);
     }
 
-    isMisbehavingWindow(appName) {
-        return this.isWindowMatching(appName, this.misbehavingWindows);
+    isForcedWindow(appName) {
+        return this.isWindowMatching(appName, this.forceList);
     }
 
     isWindowMatching(appName, list) {
@@ -108,24 +128,6 @@ class Extension {
             }
         }
         return false;
-    }
-
-    performResize(win) {
-        this.glibIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            const monitor = win.get_monitor();
-            const workspace = win.get_workspace();
-            const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
-
-            const x = monitorWorkArea.x + this.gapSize;
-            const y = monitorWorkArea.y + this.gapSize;
-            const w = monitorWorkArea.width - (2 * this.gapSize);
-            const h = monitorWorkArea.height - (2 * this.gapSize);
-
-            win.unmaximize(Meta.MaximizeFlags.BOTH);
-            win.move_resize_frame(false, x, y, w, h);
-
-            return GLib.SOURCE_REMOVE;
-        });
     }
 }
 

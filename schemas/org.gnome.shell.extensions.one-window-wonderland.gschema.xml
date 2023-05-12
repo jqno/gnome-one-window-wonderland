@@ -4,6 +4,10 @@
       <default>20</default>
       <summary>The size of the gap around the window, in pixels</summary>
     </key>
+    <key name="force-list" type="s">
+      <default><![CDATA['']]></default>
+      <summary>A comma-separated list of names of applications that are forcibly kept in position by this extension</summary>
+    </key>
     <key name="block-list" type="s">
       <default><![CDATA['']]></default>
       <summary>A comma-separated list of names of applications that should not be managed by this extension</summary>

@@ -11,6 +11,7 @@ function fillPreferencesWindow(win) {
     win.add(page);
 
     gapSize(page, settings);
+    forceList(page, settings);
     blockList(page, settings);
 }
 
@@ -24,6 +25,15 @@ function gapSize(page, settings) {
 
     addToPage(page, spin, 'Gap Size', 'The size of the gap around the window, in pixels.');
     settings.bind('gap-size', spin, 'value', Gio.SettingsBindFlags.DEFAULT);
+}
+
+function forceList(page, settings) {
+    const textbox = new Gtk.Entry({
+        hexpand: true
+    });
+
+    addToPage(page, textbox, 'Force List', 'A comma-separated list of names of applications that are forcibly kept in position by this extension.');
+    settings.bind('force-list', textbox, 'text', Gio.SettingsBindFlags.DEFAULT);
 }
 
 function blockList(page, settings) {
