@@ -10,19 +10,60 @@ function fillPreferencesWindow(win) {
     const page = new Adw.PreferencesPage();
     win.add(page);
 
-    const group = new Adw.PreferencesGroup();
-    page.add(group);
+    gapSize(page, settings);
+    blockList(page, settings);
+}
 
-    const row = new Adw.ActionRow({ title: 'Gap size' });
-    group.add(row);
-
+function gapSize(page, settings) {
     const spin = new Gtk.SpinButton({
+        hexpand: true,
         valign: Gtk.Align.CENTER
     });
     spin.set_range(0, 300);
     spin.set_increments(1, 1);
-    row.add_suffix(spin);
-    row.activatable_widget = spin;
 
+    addToPage(page, spin, 'Gap Size', 'The size of the gap around the window, in pixels.');
     settings.bind('gap-size', spin, 'value', Gio.SettingsBindFlags.DEFAULT);
+}
+
+function blockList(page, settings) {
+    const textbox = new Gtk.Entry({
+        hexpand: true
+    });
+
+    addToPage(page, textbox, 'Block List', 'A comma-separated list of names of applications that should not be managed by this extension.');
+    settings.bind('block-list', textbox, 'text', Gio.SettingsBindFlags.DEFAULT);
+}
+
+function addToPage(page, widget, labelText, explanationText) {
+    const group = new Adw.PreferencesGroup();
+    page.add(group);
+
+    const row = new Adw.ActionRow();
+    group.add(row);
+
+    const grid = new Gtk.Grid({
+        row_spacing: 6,
+        column_spacing: 12,
+        margin_start: 12,
+        margin_end: 12,
+        margin_top: 12,
+        margin_bottom: 12,
+        column_homogeneous: false
+    });
+    row.set_child(grid);
+
+    const label = new Gtk.Label({ label: labelText + ':' });
+    grid.attach(label, 0, 0, 1, 1);
+
+    grid.attach(widget, 1, 0, 1, 1);
+
+    if (explanationText !== null) {
+        const explanation = new Gtk.Label({
+            label: '<small>' + explanationText + '</small>',
+            halign: Gtk.Align.END,
+            use_markup: true
+        });
+        grid.attach(explanation, 0, 1, 2, 1);
+    }
 }

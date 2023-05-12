@@ -1,6 +1,7 @@
 const ExtensionUtils = imports.misc.extensionUtils;
 const Meta = imports.gi.Meta;
 const GLib = imports.gi.GLib;
+const Shell = imports.gi.Shell;
 
 class Extension {
 
@@ -10,13 +11,17 @@ class Extension {
         this.eventIds = [];
         this.glibIdleId = null;
         this.settingId = null;
-        this.gap = 20;
+        this.tracker = null;
+
+        this.gapSize = 20;
+        this.blockList = [];
     }
 
     enable() {
         this.settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.one-window-wonderland');
-        this.settingId = this.settings.connect('changed::gap-size', () => { this.initSettings(); });
+        this.settingId = this.settings.connect('changed', () => { this.initSettings(); });
         this.initSettings();
+        this.tracker = Shell.WindowTracker.get_default();
 
         this.eventIds = [
             global.display.connect('window-created', (_display, win) => { this.onWindowCreated(win); }),
@@ -38,7 +43,8 @@ class Extension {
     }
 
     initSettings() {
-        this.gap = this.settings.get_int('gap-size');
+        this.gapSize = this.settings.get_int('gap-size');
+        this.blockList = this.settings.get_string('block-list').split(',');
     }
 
     onWindowCreated(win) {
@@ -57,11 +63,13 @@ class Extension {
     }
 
     resizeWindow(win) {
-        if (!this.isManagedWindow(win)) {
+        const appName = this.getAppName(win);
+
+        if (appName == null || !this.isManagedWindow(win) || this.isBlockListedWindow(appName)) {
             return;
         }
 
-        if (this.isMisbehavingWindow(win)) {
+        if (this.isMisbehavingWindow(appName)) {
             const id = win.connect('position-changed', () => {
                 this.performResize(win);
                 win.disconnect(id);
@@ -72,14 +80,30 @@ class Extension {
         }
     }
 
+    getAppName(win) {
+        const app = this.tracker.get_window_app(win);
+        if (app == null) {
+            return null;
+        }
+        return app.get_name();
+    }
+
     isManagedWindow(win) {
         const type = win.get_window_type();
         return type === Meta.WindowType.NORMAL && win.allows_resize();
     }
 
-    isMisbehavingWindow(win) {
-        for (let i = 0; i < this.misbehavingWindows.length; i++) {
-            if (win.get_title().indexOf(this.misbehavingWindows[i]) !== -1) {
+    isBlockListedWindow(appName) {
+        return this.isWindowMatching(appName, this.blockList);
+    }
+
+    isMisbehavingWindow(appName) {
+        return this.isWindowMatching(appName, this.misbehavingWindows);
+    }
+
+    isWindowMatching(appName, list) {
+        for (let i = 0; i < list.length; i++) {
+            if (appName === list[i]) {
                 return true;
             }
         }
@@ -92,10 +116,10 @@ class Extension {
             const workspace = win.get_workspace();
             const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
 
-            const x = monitorWorkArea.x + this.gap;
-            const y = monitorWorkArea.y + this.gap;
-            const w = monitorWorkArea.width - (2 * this.gap);
-            const h = monitorWorkArea.height - (2 * this.gap);
+            const x = monitorWorkArea.x + this.gapSize;
+            const y = monitorWorkArea.y + this.gapSize;
+            const w = monitorWorkArea.width - (2 * this.gapSize);
+            const h = monitorWorkArea.height - (2 * this.gapSize);
 
             win.unmaximize(Meta.MaximizeFlags.BOTH);
             win.move_resize_frame(false, x, y, w, h);
