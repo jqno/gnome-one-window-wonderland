@@ -14,7 +14,7 @@ class Extension {
 
         this.gapSize = 20;
         this.forceList = [];
-        this.blockList = [];
+        this.ignoreList = [];
     }
 
     enable() {
@@ -47,7 +47,7 @@ class Extension {
     initSettings() {
         this.gapSize = this.settings.get_int('gap-size');
         this.forceList = this.settings.get_string('force-list').split(',');
-        this.blockList = this.settings.get_string('block-list').split(',');
+        this.ignoreList = this.settings.get_string('ignore-list').split(',');
     }
 
     onWindowCreated(win) {
@@ -79,7 +79,7 @@ class Extension {
 
     resizeWindow(win) {
         const appName = this.getAppName(win);
-        if (appName == null || !this.isManagedWindow(win) || this.isBlockListedWindow(appName)) {
+        if (appName == null || !this.isManagedWindow(win) || this.isIgnoreListedWindow(appName)) {
             return;
         }
 
@@ -113,8 +113,8 @@ class Extension {
         return type === Meta.WindowType.NORMAL && win.allows_resize();
     }
 
-    isBlockListedWindow(appName) {
-        return this.isWindowMatching(appName, this.blockList);
+    isIgnoreListedWindow(appName) {
+        return this.isWindowMatching(appName, this.ignoreList);
     }
 
     isForcedWindow(appName) {
