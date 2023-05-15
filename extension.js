@@ -8,7 +8,6 @@ class Extension {
     constructor() {
         this.eventIds = [];
         this.windowEventIds = [];
-        this.glibIdleId = null;
         this.settingId = null;
         this.tracker = null;
 
@@ -33,10 +32,6 @@ class Extension {
         this.eventIds.forEach(e => { global.display.disconnect(e); });
         this.windowEventIds.forEach(e => e());
 
-        if (this.glibIdleId) {
-            GLib.Source.remove(this.glibIdleId);
-            this.glibIdleId = null;
-        }
         if (this.settingId) {
             this.settings.disconnect(this.settingId);
         }
@@ -55,22 +50,26 @@ class Extension {
         if (!act) {
             return;
         }
-        const id = act.connect('first-frame', _params => {
+        const idFirstFrame = act.connect('first-frame', _params => {
             this.resizeWindow(win);
-            act.disconnect(id);
+            act.disconnect(idFirstFrame);
         });
 
-        const appName = this.getAppName(win);
-        if (this.isForcedWindow(appName)) {
-            const resizeId = win.connect('position-changed', () => {
-                this.resizeWindow(win);
-            });
-            const sizeChangeId = win.connect('size-changed', () => {
-                this.resizeWindow(win);
-            });
-            this.windowEventIds.push(() => win.disconnect(resizeId));
-            this.windowEventIds.push(() => win.disconnect(sizeChangeId));
-        }
+        const idIdle = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+            const appName = this.getAppName(win);
+            if (this.isForcedWindow(appName)) {
+                const resizeId = win.connect('position-changed', () => {
+                    this.resizeWindow(win);
+                });
+                const sizeChangeId = win.connect('size-changed', () => {
+                    this.resizeWindow(win);
+                });
+                this.windowEventIds.push(() => win.disconnect(resizeId));
+                this.windowEventIds.push(() => win.disconnect(sizeChangeId));
+            }
+            GLib.Source.remove(idIdle);
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     onWindowEnteredMonitor(win) {
@@ -83,7 +82,7 @@ class Extension {
             return;
         }
 
-        this.glibIdleId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        const id = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             const monitor = win.get_monitor();
             const workspace = win.get_workspace();
             const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
@@ -96,6 +95,7 @@ class Extension {
             win.unmaximize(Meta.MaximizeFlags.BOTH);
             win.move_resize_frame(false, x, y, w, h);
 
+            GLib.Source.remove(id);
             return GLib.SOURCE_REMOVE;
         });
     }
