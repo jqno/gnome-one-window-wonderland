@@ -2,7 +2,9 @@
 
 A GNOME Shell extension that automatically maximizes new windows, leaving "useless gaps" around them.
 
-![A screenshot of One Window Wonderland in action](screenshot.png)
+![A screenshot of One Window Wonderland in action](screenshot1.png)
+
+![A screenshot of One Window Wonderland's preferences screen](screenshot2.png)
 
 Get it on [extensions.gnome.org](https://extensions.gnome.org/extension/5696/one-window-wonderland/)!
 
