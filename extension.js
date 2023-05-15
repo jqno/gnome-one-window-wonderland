@@ -8,6 +8,7 @@ class Extension {
     constructor() {
         this.eventIds = [];
         this.windowEventIds = [];
+        this.glibIdleIds = [];
         this.settingId = null;
         this.tracker = null;
 
@@ -31,12 +32,14 @@ class Extension {
     disable() {
         this.eventIds.forEach(e => { global.display.disconnect(e); });
         this.windowEventIds.forEach(e => e());
+        this.glibIdleIds.forEach(e => GLib.Source.remove(e));
 
         if (this.settingId) {
             this.settings.disconnect(this.settingId);
         }
         this.settings = null;
         this.eventIds = [];
+        this.glibIdleIds = [];
     }
 
     initSettings() {
@@ -55,7 +58,7 @@ class Extension {
             act.disconnect(idFirstFrame);
         });
 
-        const idIdle = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        this.glibIdleIds.push(GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             const appName = this.getAppName(win);
             if (this.isForcedWindow(appName)) {
                 const resizeId = win.connect('position-changed', () => {
@@ -67,9 +70,8 @@ class Extension {
                 this.windowEventIds.push(() => win.disconnect(resizeId));
                 this.windowEventIds.push(() => win.disconnect(sizeChangeId));
             }
-            GLib.Source.remove(idIdle);
             return GLib.SOURCE_REMOVE;
-        });
+        }));
     }
 
     onWindowEnteredMonitor(win) {
@@ -82,7 +84,7 @@ class Extension {
             return;
         }
 
-        const id = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+        this.glibIdleIds.push(GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             const monitor = win.get_monitor();
             const workspace = win.get_workspace();
             const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
@@ -95,9 +97,8 @@ class Extension {
             win.unmaximize(Meta.MaximizeFlags.BOTH);
             win.move_resize_frame(false, x, y, w, h);
 
-            GLib.Source.remove(id);
             return GLib.SOURCE_REMOVE;
-        });
+        }));
     }
 
     getAppName(win) {
