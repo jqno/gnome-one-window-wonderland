@@ -70,7 +70,7 @@ function addToPage(page, widget, labelText, explanationText1, explanationText2) 
 
     grid.attach(widget, 1, 0, 1, 1);
 
-    if (explanationText1 !== null) {
+    if (explanationText1) {
         const explanation = new Gtk.Label({
             label: '<small>' + explanationText1 + '</small>',
             halign: Gtk.Align.END,
@@ -78,7 +78,7 @@ function addToPage(page, widget, labelText, explanationText1, explanationText2) 
         });
         grid.attach(explanation, 0, 1, 2, 1);
     }
-    if (explanationText2 !== null) {
+    if (explanationText2) {
         const explanation = new Gtk.Label({
             label: '<small>' + explanationText2 + '</small>',
             halign: Gtk.Align.END,
