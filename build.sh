@@ -3,6 +3,7 @@
 case "$1" in
 
     "local")
+        glib-compile-schemas schemas
         gnome-extensions pack --force --extra-source="LICENSE.md"
         gnome-extensions install --force gnome-one-window-wonderland@jqno.nl.shell-extension.zip
         echo "Press Alt+F2 and type 'restart'!"
