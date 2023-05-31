@@ -21,7 +21,7 @@ function gapSize(page, settings) {
         hexpand: true,
         valign: Gtk.Align.CENTER
     });
-    spin.set_range(0, 300);
+    spin.set_range(-1, 300);
     spin.set_increments(1, 1);
 
     addToPage(page, spin, null, 'Gap Size', 'The size of the gap around the window, in pixels.');
@@ -165,8 +165,8 @@ function createAppChooserDialog(textbox) {
     scrolledWindow.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
     scrolledWindow.set_child(treeView);
 
-    const box = new Gtk.Box({ 
-        orientation: Gtk.Orientation.VERTICAL, 
+    const box = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
         spacing: 10
     });
     box.append(scrolledWindow);

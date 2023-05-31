@@ -91,17 +91,26 @@ class Extension {
         }
 
         this.glibIdleIds.push(GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            const monitor = win.get_monitor();
-            const workspace = win.get_workspace();
-            const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
+            if (this.gapSize===-1) {
+                if (win.can_maximize()) {
+                    win.maximize(Meta.MaximizeFlags.BOTH);
+                }
+            } else {
 
-            const x = monitorWorkArea.x + this.gapSize;
-            const y = monitorWorkArea.y + this.gapSize;
-            const w = monitorWorkArea.width - (2 * this.gapSize);
-            const h = monitorWorkArea.height - (2 * this.gapSize);
+                const monitor = win.get_monitor();
+                const workspace = win.get_workspace();
+                const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
 
-            win.unmaximize(Meta.MaximizeFlags.BOTH);
-            win.move_resize_frame(false, x, y, w, h);
+                const x = monitorWorkArea.x + this.gapSize;
+                const y = monitorWorkArea.y + this.gapSize;
+                const w = monitorWorkArea.width - (2 * this.gapSize);
+                const h = monitorWorkArea.height - (2 * this.gapSize);
+
+                win.unmaximize(Meta.MaximizeFlags.BOTH);
+                win.move_resize_frame(false, x, y, w, h);
+
+
+            }
 
             return GLib.SOURCE_REMOVE;
         }));
@@ -141,4 +150,3 @@ class Extension {
 function init() {
     return new Extension();
 }
-
