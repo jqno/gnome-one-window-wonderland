@@ -25,7 +25,9 @@ class Extension {
 
         this.eventIds = [
             global.display.connect('window-created', (_display, win) => { this.onWindowCreated(win); }),
-            global.display.connect('window-entered-monitor', (_display, _monitorIndex, win) => { this.onWindowEnteredMonitor(win); })
+            global.display.connect('window-entered-monitor', (_display, _monitorIndex, win) => { this.onWindowEnteredMonitor(win); }),
+            global.display.connect('monitor-added', (_display, _monitor) => { this.resizeAllWindows(); }),
+            global.display.connect('monitor-removed', (_display, _monitor) => { this.resizeAllWindows(); })
         ];
     }
 
@@ -76,6 +78,10 @@ class Extension {
 
     onWindowEnteredMonitor(win) {
         this.resizeWindow(win);
+    }
+
+    resizeAllWindows() {
+        global.get_window_actors().forEach(this.resizeWindow);
     }
 
     resizeWindow(win) {
