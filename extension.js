@@ -44,8 +44,8 @@ class Extension {
 
     initSettings() {
         this.gapSize = this.settings.get_int('gap-size');
-        this.forceList = this.settings.get_string('force-list').split(',');
-        this.ignoreList = this.settings.get_string('ignore-list').split(',');
+        this.forceList = this.settings.get_string('force-list').split(/\s*,\s*/);
+        this.ignoreList = this.settings.get_string('ignore-list').split(/\s*,\s*/);
     }
 
     onWindowCreated(win) {
@@ -124,7 +124,7 @@ class Extension {
 
     isWindowMatching(appName, list) {
         for (let i = 0; i < list.length; i++) {
-            if (appName === list[i]) {
+            if (appName && list[i] && appName.toLowerCase() === list[i].toLowerCase()) {
                 return true;
             }
         }

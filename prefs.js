@@ -188,7 +188,7 @@ function createAppChooserDialog(textbox) {
 function updateAppList(textbox, appName) {
     const content = textbox.get_text();
     if (content) {
-        textbox.set_text(content + ',' + appName);
+        textbox.set_text(content + ', ' + appName);
     }
     else {
         textbox.set_text(appName);
