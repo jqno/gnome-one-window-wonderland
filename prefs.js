@@ -1,6 +1,5 @@
 const { Adw, Gio, Gtk, GObject } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
 
 function init() { }
 
@@ -121,12 +120,6 @@ function createGrid(page) {
     return grid;
 }
 
-function getInstalledApps() {
-    return Gio.AppInfo.get_all()
-        .filter(ai => ai.should_show())
-        .map(ai => ai.get_name());
-}
-
 function createAppChooserDialog(textbox) {
     const dialog = new Gtk.Dialog({
         title: 'Choose an application',
@@ -165,8 +158,8 @@ function createAppChooserDialog(textbox) {
     scrolledWindow.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC);
     scrolledWindow.set_child(treeView);
 
-    const box = new Gtk.Box({ 
-        orientation: Gtk.Orientation.VERTICAL, 
+    const box = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
         spacing: 10
     });
     box.append(scrolledWindow);
@@ -183,6 +176,12 @@ function createAppChooserDialog(textbox) {
     });
     dialog.get_content_area().append(box);
     dialog.show();
+}
+
+function getInstalledApps() {
+    return Gio.AppInfo.get_all()
+        .filter(ai => ai.should_show())
+        .map(ai => ai.get_name());
 }
 
 function updateAppList(textbox, appName) {
