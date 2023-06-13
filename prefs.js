@@ -10,8 +10,8 @@ function fillPreferencesWindow(win) {
     win.add(page);
 
     gapSize(page, settings);
-    forceList(page, settings);
-    ignoreList(page, settings);
+    forceList(page, settings, win);
+    ignoreList(page, settings, win);
     applicationNote(page);
 }
 
@@ -27,13 +27,13 @@ function gapSize(page, settings) {
     settings.bind('gap-size', spin, 'value', Gio.SettingsBindFlags.DEFAULT);
 }
 
-function forceList(page, settings) {
+function forceList(page, settings, parentWin) {
     const textbox = new Gtk.Entry({
         hexpand: true
     });
     const button = new Gtk.Button({ label: 'Add app' });
     button.connect('clicked', () => {
-        createAppChooserDialog(textbox);
+        createAppChooserDialog(textbox, parentWin);
     });
 
     addToPage(page, textbox, button, 'Force List',
@@ -42,13 +42,13 @@ function forceList(page, settings) {
     settings.bind('force-list', textbox, 'text', Gio.SettingsBindFlags.DEFAULT);
 }
 
-function ignoreList(page, settings) {
+function ignoreList(page, settings, parentWin) {
     const textbox = new Gtk.Entry({
         hexpand: true
     });
     const button = new Gtk.Button({ label: 'Add app' });
     button.connect('clicked', () => {
-        createAppChooserDialog(textbox);
+        createAppChooserDialog(textbox, parentWin);
     });
 
     addToPage(page, textbox, button, 'Ignore List',
@@ -120,7 +120,7 @@ function createGrid(page) {
     return grid;
 }
 
-function createAppChooserDialog(textbox) {
+function createAppChooserDialog(textbox, parentWin) {
     const dialog = new Gtk.Dialog({
         title: 'Choose an application',
         use_header_bar: 1,
@@ -128,6 +128,7 @@ function createAppChooserDialog(textbox) {
         resizable: false
     });
     dialog.set_size_request(300, 700);
+    dialog.set_transient_for(parentWin);
     dialog.add_button('Cancel', Gtk.ResponseType.CANCEL);
     dialog.add_button('Confirm', Gtk.ResponseType.OK);
     dialog.set_default_response(Gtk.ResponseType.OK);
