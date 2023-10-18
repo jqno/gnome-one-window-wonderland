@@ -1,26 +1,21 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-const Meta = imports.gi.Meta;
-const GLib = imports.gi.GLib;
-const Shell = imports.gi.Shell;
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import Meta from 'gi://Meta';
+import GLib from 'gi://GLib';
+import Shell from 'gi://Shell';
 
-class Extension {
+export default class OneWindowWonderlandExtension extends Extension {
 
-    constructor() {
-        this.eventIds = [];
+    enable() {
         this.windowEventIds = [];
         this.glibIdleIds = [];
-        this.settingId = null;
-        this.tracker = null;
 
+        this.settings = this.getSettings('org.gnome.shell.extensions.one-window-wonderland');
+        this.settingId = this.settings.connect('changed', () => { this.initSettings(); });
         this.gapSize = 20;
         this.forceList = [];
         this.ignoreList = [];
-    }
-
-    enable() {
-        this.settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.one-window-wonderland');
-        this.settingId = this.settings.connect('changed', () => { this.initSettings(); });
         this.initSettings();
+
         this.tracker = Shell.WindowTracker.get_default();
 
         this.eventIds = [
@@ -131,8 +126,3 @@ class Extension {
         return false;
     }
 }
-
-function init() {
-    return new Extension();
-}
-
