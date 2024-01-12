@@ -84,13 +84,17 @@ export default class OneWindowWonderlandExtension extends Extension {
             const workspace = win.get_workspace();
             const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
 
-            const x = monitorWorkArea.x + this.gapSize;
-            const y = monitorWorkArea.y + this.gapSize;
-            const w = monitorWorkArea.width - (2 * this.gapSize);
-            const h = monitorWorkArea.height - (2 * this.gapSize);
+            if (this.gapSize == 0) {
+                win.maximize(Meta.MaximizeFlags.BOTH);
+            } else {
+                const x = monitorWorkArea.x + this.gapSize;
+                const y = monitorWorkArea.y + this.gapSize;
+                const w = monitorWorkArea.width - (2 * this.gapSize);
+                const h = monitorWorkArea.height - (2 * this.gapSize);
 
-            win.unmaximize(Meta.MaximizeFlags.BOTH);
-            win.move_resize_frame(false, x, y, w, h);
+                win.unmaximize(Meta.MaximizeFlags.BOTH);
+                win.move_resize_frame(false, x, y, w, h);
+            }
 
             return GLib.SOURCE_REMOVE;
         }));
