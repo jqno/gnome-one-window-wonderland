@@ -84,7 +84,7 @@ export default class OneWindowWonderlandExtension extends Extension {
             const workspace = win.get_workspace();
             const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
 
-            if (this.gapSize == 0) {
+            if (this.gapSize === 0 && win.can_maximize()) {
                 win.maximize(Meta.MaximizeFlags.BOTH);
             } else {
                 const x = monitorWorkArea.x + this.gapSize;
