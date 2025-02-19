@@ -3,7 +3,7 @@
   "description": "Automatically maximizes new windows, leaving 'useless gaps' around them.\n\nFeatures:\n- Sizes and positions a new window so that it takes the full workspace, except for the gaps around it.\n- Sizes and positions a window that moves to another monitor so that it takes the full workspace, except for the gaps around it.\n- The size of the gaps is configurable.\n- You can define a list of apps that should be left alone by this extension (the 'ignore list').\n- You can define a list of apps that should forcibly be kept in place (the 'force list').\n\nNote that One Window Wonderland leaves windows alone after they've been created or moved to another monitor. You are free to resize them as you see fit, or add them to the force list to keep them in place.",
   "uuid": "gnome-one-window-wonderland@jqno.nl",
   "url": "https://github.com/jqno/gnome-one-window-wonderland/",
-  "version": 13,
+  "version": 14,
   "shell-version": [
     "45",
     "46",

@@ -74,6 +74,10 @@ export default class OneWindowWonderlandExtension extends Extension {
     }
 
     resizeWindow(win) {
+        if (global.display.is_grabbed()) {
+            // Don't resize while dragging a window
+            return;
+        }
         const appName = this.getAppName(win);
         if (appName == null || !this.isManagedWindow(win) || this.isIgnoreListedWindow(appName)) {
             return;
