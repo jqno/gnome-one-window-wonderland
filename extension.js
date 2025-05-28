@@ -3,6 +3,8 @@ import Meta from 'gi://Meta';
 import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
 
+const BUILTIN_IGNORE_LIST = ['gjs'];
+
 export default class OneWindowWonderlandExtension extends Extension {
 
     enable() {
@@ -118,7 +120,7 @@ export default class OneWindowWonderlandExtension extends Extension {
     }
 
     isIgnoreListedWindow(appName) {
-        return this.isWindowMatching(appName, this.ignoreList);
+        return this.isWindowMatching(appName, this.ignoreList) || this.isWindowMatching(appName, BUILTIN_IGNORE_LIST);
     }
 
     isForcedWindow(appName) {
