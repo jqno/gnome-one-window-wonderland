@@ -98,7 +98,7 @@ export default class OneWindowWonderlandExtension extends Extension {
                 const w = monitorWorkArea.width - (2 * this.gapSize);
                 const h = monitorWorkArea.height - (2 * this.gapSize);
 
-                win.unmaximize(Meta.MaximizeFlags.BOTH);
+                win.unmaximize();
                 win.move_resize_frame(false, x, y, w, h);
             }
 
