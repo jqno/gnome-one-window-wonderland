@@ -22,7 +22,7 @@ export default class OneWindowWonderlandExtension extends Extension {
 
         this.eventIds = [
             global.display.connect('window-created', (_display, win) => { this.onWindowCreated(win); }),
-            global.display.connect('window-entered-monitor', (_display, _monitorIndex, win) => { this.onWindowEnteredMonitor(win); })
+            global.display.connect('window-entered-monitor', (_display, _monitorIndex, win) => { this.resizeWindow(win); })
         ];
     }
 
@@ -61,18 +61,14 @@ export default class OneWindowWonderlandExtension extends Extension {
                 const resizeId = win.connect('position-changed', () => {
                     this.resizeWindow(win);
                 });
-                const sizeChangeId = win.connect('size-changed', () => {
+                this.windowEventIds.push(() => win.disconnect(resizeId));
+                const sizeChangedId = win.connect('size-changed', () => {
                     this.resizeWindow(win);
                 });
-                this.windowEventIds.push(() => win.disconnect(resizeId));
-                this.windowEventIds.push(() => win.disconnect(sizeChangeId));
+                this.windowEventIds.push(() => win.disconnect(sizeChangedId));
             }
             return GLib.SOURCE_REMOVE;
         }));
-    }
-
-    onWindowEnteredMonitor(win) {
-        this.resizeWindow(win);
     }
 
     resizeWindow(win) {
