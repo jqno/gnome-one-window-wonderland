@@ -57,16 +57,24 @@ export default class OneWindowWonderlandExtension extends Extension {
 
         this.glibIdleIds.push(GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             const appName = this.getAppName(win);
-            if (this.isForcedWindow(appName)) {
+            const isForced = this.isForcedWindow(appName);
+            if (isForced) {
                 const resizeId = win.connect('position-changed', () => {
                     this.resizeWindow(win);
                 });
                 this.windowEventIds.push(() => win.disconnect(resizeId));
-                const sizeChangedId = win.connect('size-changed', () => {
-                    this.resizeWindow(win);
-                });
-                this.windowEventIds.push(() => win.disconnect(sizeChangedId));
             }
+
+            const sizeChangedId = win.connect('size-changed', () => {
+                if (isForced){
+                    this.resizeWindow(win);
+                }
+                if(this.isMaximized(win)) {
+                    this.resizeWindow(win);
+                }
+            });
+            this.windowEventIds.push(() => win.disconnect(sizeChangedId));
+
             return GLib.SOURCE_REMOVE;
         }));
     }
@@ -77,7 +85,7 @@ export default class OneWindowWonderlandExtension extends Extension {
             return;
         }
         const appName = this.getAppName(win);
-        if (appName == null || !this.isManagedWindow(win) || this.isIgnoreListedWindow(appName)) {
+        if (appName == null || !this.isResizableWindow(win) || this.isIgnoreListedWindow(appName)) {
             return;
         }
 
@@ -87,7 +95,7 @@ export default class OneWindowWonderlandExtension extends Extension {
             const monitorWorkArea = workspace.get_work_area_for_monitor(monitor);
 
             if (this.gapSize === 0 && win.can_maximize()) {
-                win.maximize(Meta.MaximizeFlags.BOTH);
+                win.maximize();
             } else {
                 const x = monitorWorkArea.x + this.gapSize;
                 const y = monitorWorkArea.y + this.gapSize;
@@ -110,9 +118,14 @@ export default class OneWindowWonderlandExtension extends Extension {
         return app.get_name();
     }
 
-    isManagedWindow(win) {
+    isMaximized(win) {
+        return win.is_maximized();
+    }
+
+    isResizableWindow(win) {
         const type = win.get_window_type();
-        return type === Meta.WindowType.NORMAL && win.allows_resize();
+        // A maximized window technically cannot be resized, but we unmaximize it first
+        return type === Meta.WindowType.NORMAL && (win.allows_resize() || this.isMaximized(win));
     }
 
     isIgnoreListedWindow(appName) {
