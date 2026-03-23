@@ -135,7 +135,8 @@ export default class OneWindowWonderlandExtension extends Extension {
     isResizableWindow(win) {
         const type = win.get_window_type();
         // A maximized window technically cannot be resized, but we unmaximize it first
-        return type === Meta.WindowType.NORMAL && (win.allows_resize() || this.isMaximized(win));
+        // A window's transient is its 'parent' window; usually we don't want to maximize those, because they tend to be dialogs
+        return type === Meta.WindowType.NORMAL && (win.allows_resize() || this.isMaximized(win)) && !win.get_transient_for();
     }
 
     isIgnoredWindow(appName) {
