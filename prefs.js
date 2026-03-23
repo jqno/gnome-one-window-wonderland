@@ -13,8 +13,9 @@ export default class OneWindowWonderlandPreferences extends ExtensionPreferences
         win.add(page);
 
         this.gapSize(page, settings);
-        this.forceList(page, settings, win);
         this.ignoreList(page, settings, win);
+        this.onlyTheseList(page, settings, win);
+        this.forceList(page, settings, win);
         this.applicationNote(page);
     }
 
@@ -30,21 +31,6 @@ export default class OneWindowWonderlandPreferences extends ExtensionPreferences
         settings.bind('gap-size', spin, 'value', Gio.SettingsBindFlags.DEFAULT);
     }
 
-    forceList(page, settings, parentWin) {
-        const textbox = new Gtk.Entry({
-            hexpand: true
-        });
-        const button = new Gtk.Button({ label: 'Add app' });
-        button.connect('clicked', () => {
-            this.createAppChooserDialog(textbox, parentWin);
-        });
-
-        this.addToPage(page, textbox, button, 'Force List',
-            'A comma-separated list of names of applications<sup>*</sup> that are forcibly kept in position by this extension.',
-            'Note that an application needs to be restarted before this setting takes effect.');
-        settings.bind('force-list', textbox, 'text', Gio.SettingsBindFlags.DEFAULT);
-    }
-
     ignoreList(page, settings, parentWin) {
         const textbox = new Gtk.Entry({
             hexpand: true
@@ -54,10 +40,40 @@ export default class OneWindowWonderlandPreferences extends ExtensionPreferences
             this.createAppChooserDialog(textbox, parentWin);
         });
 
-        this.addToPage(page, textbox, button, 'Ignore List',
+        this.addToPage(page, textbox, button, 'Ignore',
             'A comma-separated list of names of applications<sup>*</sup> that should not be managed by this extension.',
             null);
         settings.bind('ignore-list', textbox, 'text', Gio.SettingsBindFlags.DEFAULT);
+    }
+
+    onlyTheseList(page, settings, parentWin) {
+        const textbox = new Gtk.Entry({
+            hexpand: true
+        });
+        const button = new Gtk.Button({ label: 'Add app' });
+        button.connect('clicked', () => {
+            this.createAppChooserDialog(textbox, parentWin);
+        });
+
+        this.addToPage(page, textbox, button, 'Only these',
+            'A comma-separated list of names of applications<sup>*</sup> that should be managed by this extension.',
+            'Note that applications not in this list will not be managed.');
+        settings.bind('onlythese-list', textbox, 'text', Gio.SettingsBindFlags.DEFAULT);
+    }
+
+    forceList(page, settings, parentWin) {
+        const textbox = new Gtk.Entry({
+            hexpand: true
+        });
+        const button = new Gtk.Button({ label: 'Add app' });
+        button.connect('clicked', () => {
+            this.createAppChooserDialog(textbox, parentWin);
+        });
+
+        this.addToPage(page, textbox, button, 'Force',
+            'A comma-separated list of names of applications<sup>*</sup> that are forcibly kept in position by this extension.',
+            'Note that an application needs to be restarted before this setting takes effect.');
+        settings.bind('force-list', textbox, 'text', Gio.SettingsBindFlags.DEFAULT);
     }
 
     applicationNote(page) {

@@ -16,6 +16,7 @@ export default class OneWindowWonderlandExtension extends Extension {
         this.gapSize = 20;
         this.forceList = [];
         this.ignoreList = [];
+        this.onlyTheseList = [];
         this.initSettings();
 
         this.tracker = Shell.WindowTracker.get_default();
@@ -41,8 +42,17 @@ export default class OneWindowWonderlandExtension extends Extension {
 
     initSettings() {
         this.gapSize = this.settings.get_int('gap-size');
-        this.forceList = this.settings.get_string('force-list').split(/\s*,\s*/);
-        this.ignoreList = this.settings.get_string('ignore-list').split(/\s*,\s*/);
+        this.forceList = this.splitSetting('force-list');
+        this.ignoreList = this.splitSetting('ignore-list');
+        this.onlyTheseList = this.splitSetting('onlythese-list');
+    }
+
+    splitSetting(settingName) {
+        const setting = this.settings.get_string(settingName);
+        if (setting == null || setting === '') {
+            return [];
+        }
+        return setting.split(/\s*,\s*/);
     }
 
     onWindowCreated(win) {
@@ -85,7 +95,7 @@ export default class OneWindowWonderlandExtension extends Extension {
             return;
         }
         const appName = this.getAppName(win);
-        if (appName == null || !this.isResizableWindow(win) || this.isIgnoreListedWindow(appName)) {
+        if (appName == null || !this.isResizableWindow(win) || this.isIgnoredWindow(appName)) {
             return;
         }
 
@@ -128,8 +138,17 @@ export default class OneWindowWonderlandExtension extends Extension {
         return type === Meta.WindowType.NORMAL && (win.allows_resize() || this.isMaximized(win));
     }
 
-    isIgnoreListedWindow(appName) {
-        return this.isWindowMatching(appName, this.ignoreList) || this.isWindowMatching(appName, BUILTIN_IGNORE_LIST);
+    isIgnoredWindow(appName) {
+        if (this.isWindowMatching(appName, BUILTIN_IGNORE_LIST)) {
+            return true;
+        }
+
+        if (this.onlyTheseList.length === 0) {
+            return this.isWindowMatching(appName, this.ignoreList);
+        }
+        else {
+            return !this.isWindowMatching(appName, this.onlyTheseList);
+        }
     }
 
     isForcedWindow(appName) {
