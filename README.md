@@ -12,8 +12,10 @@ Get it on [extensions.gnome.org](https://extensions.gnome.org/extension/5696/one
 
 - Sizes and positions a new window so that it takes the full workspace, except for the gaps around it.
 - Sizes and positions a window that moves to another monitor so that it takes the full workspace, except for the gaps around it.
+- Re-sizes a window that is maximized.
 - The size of the gaps is configurable.
 - You can define a list of apps that should be left alone by this extension (the 'ignore list').
+- You can define a list of apps that should be _the only ones_ to be affected by this extension (the 'only these' list). Using this makes the 'ignore list' redundant.
 - You can define a list of apps that should forcibly be kept in place (the 'force list').
 
 Note that One Window Wonderland leaves windows alone after they've been created or moved to another monitor. You are free to resize them as you see fit, or add them to the force list to keep them in place.
