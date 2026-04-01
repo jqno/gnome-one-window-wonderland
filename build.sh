@@ -6,7 +6,8 @@ case "$1" in
         glib-compile-schemas schemas
         gnome-extensions pack --force --extra-source="LICENSE.md"
         gnome-extensions install --force gnome-one-window-wonderland@jqno.nl.shell-extension.zip
-        echo "Press Alt+F2 and type 'restart'!"
+        echo "X11: Press Alt+F2 and type 'restart'!"
+        echo "Wayland: Log out and log back in!"
         ;;
 
     "package")
