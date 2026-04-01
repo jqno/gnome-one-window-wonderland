@@ -26,6 +26,17 @@ This extension works well alongside such extensions as [Useless Gaps](https://ex
 
 It doesn't work with full blown tiling window manager extensions like [Material Shell](https://material-shell.com/).
 
+# Installing manually
+
+To install manually, follow these steps:
+
+- Uninstall this extension if you have installed it previously from [extensions.gnome.org](https://extensions.gnome.org/) or the GNOME Extension Manager,
+- Create a suitable directory and navigate to it in a terminal,
+- Run `git clone git@github.com:jqno/gnome-one-window-wonderland.git`,
+- Run `cd gnome-one-window-wonderland`,
+- Run `./build local`,
+- Log out and log back in.
+
 # Motivation
 
 - Working on a laptop with limited screen real estate, I like my windows to be maximized. This provides focus.
