@@ -12,23 +12,50 @@ export default class OneWindowWonderlandPreferences extends ExtensionPreferences
         const page = new Adw.PreferencesPage();
         win.add(page);
 
-        this.gapSize(page, settings);
+        this.generalSettings(page, settings);
         this.ignoreList(page, settings, win);
         this.onlyTheseList(page, settings, win);
         this.forceList(page, settings, win);
         this.applicationNote(page);
     }
 
-    gapSize(page, settings) {
+    generalSettings(page, settings) {
+        const grid = this.createGrid(page);
+
+        // Gap Size
         const spin = new Gtk.SpinButton({
             hexpand: true,
             valign: Gtk.Align.CENTER
         });
         spin.set_range(0, 300);
         spin.set_increments(1, 1);
-
-        this.addToPage(page, spin, null, 'Gap Size', 'The size of the gap around the window, in pixels.');
         settings.bind('gap-size', spin, 'value', Gio.SettingsBindFlags.DEFAULT);
+
+        grid.attach(new Gtk.Label({ label: 'Gap Size:', halign: Gtk.Align.START }), 0, 0, 1, 1);
+        grid.attach(spin, 1, 0, 1, 1);
+        grid.attach(new Gtk.Label({
+            label: '<small>The size of the gap around the window, in pixels.</small>',
+            halign: Gtk.Align.END,
+            use_markup: true
+        }), 0, 1, 2, 1);
+
+        // Resize on maximize
+        const toggle = new Gtk.Switch({
+            halign: Gtk.Align.START,
+            valign: Gtk.Align.CENTER
+        });
+        const updateSensitivity = () => { toggle.set_sensitive(settings.get_int('gap-size') !== 0); };
+        updateSensitivity();
+        settings.connect('changed::gap-size', updateSensitivity);
+        settings.bind('resize-on-maximize', toggle, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+        grid.attach(new Gtk.Label({ label: 'Resize on maximize:' }), 0, 2, 1, 1);
+        grid.attach(toggle, 1, 2, 1, 1);
+        grid.attach(new Gtk.Label({
+            label: '<small>When enabled, maximizing a window will resize it to fit the gap instead.</small>',
+            halign: Gtk.Align.END,
+            use_markup: true
+        }), 0, 3, 2, 1);
     }
 
     ignoreList(page, settings, parentWin) {

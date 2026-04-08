@@ -4,6 +4,10 @@
       <default>20</default>
       <summary>The size of the gap around the window, in pixels</summary>
     </key>
+    <key name="resize-on-maximize" type="b">
+      <default>true</default>
+      <summary>Resize windows when they are maximized</summary>
+    </key>
     <key name="force-list" type="s">
       <default><![CDATA['']]></default>
       <summary>A comma-separated list of names of applications that are forcibly kept in position by this extension</summary>

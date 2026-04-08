@@ -14,6 +14,7 @@ export default class OneWindowWonderlandExtension extends Extension {
         this.settings = this.getSettings('org.gnome.shell.extensions.one-window-wonderland');
         this.settingId = this.settings.connect('changed', () => { this.initSettings(); });
         this.gapSize = 20;
+        this.resizeOnMaximize = true;
         this.forceList = [];
         this.ignoreList = [];
         this.onlyTheseList = [];
@@ -42,6 +43,7 @@ export default class OneWindowWonderlandExtension extends Extension {
 
     initSettings() {
         this.gapSize = this.settings.get_int('gap-size');
+        this.resizeOnMaximize = this.settings.get_boolean('resize-on-maximize');
         this.forceList = this.splitSetting('force-list');
         this.ignoreList = this.splitSetting('ignore-list');
         this.onlyTheseList = this.splitSetting('onlythese-list');
@@ -79,7 +81,7 @@ export default class OneWindowWonderlandExtension extends Extension {
                 if (isForced){
                     this.resizeWindow(win);
                 }
-                if(this.isMaximized(win)) {
+                if(this.shouldResizeOnMaximize() && this.isMaximized(win)) {
                     this.resizeWindow(win);
                 }
             });
@@ -126,6 +128,10 @@ export default class OneWindowWonderlandExtension extends Extension {
             return null;
         }
         return app.get_name();
+    }
+
+    shouldResizeOnMaximize() {
+        return this.resizeOnMaximize && this.gapSize !== 0;
     }
 
     isMaximized(win) {
