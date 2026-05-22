@@ -75,6 +75,13 @@ export default class OneWindowWonderlandExtension extends Extension {
                     this.resizeWindow(win);
                 });
                 this.windowEventIds.push(() => win.disconnect(resizeId));
+
+                const maximizeId = win.connect('notify::maximized-horizontally', () => {
+                    if (this.isMaximized(win)) {
+                        this.resizeWindow(win);
+                    }
+                });
+                this.windowEventIds.push(() => win.disconnect(maximizeId));
             }
 
             const sizeChangedId = win.connect('size-changed', () => {
