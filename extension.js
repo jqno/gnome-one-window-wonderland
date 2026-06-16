@@ -82,17 +82,20 @@ export default class OneWindowWonderlandExtension extends Extension {
                     }
                 });
                 this.windowEventIds.push(() => win.disconnect(maximizeId));
-            }
 
-            const sizeChangedId = win.connect('size-changed', () => {
-                if (isForced){
+                const sizeChangedId = win.connect('size-changed', () => {
                     this.resizeWindow(win);
-                }
-                if(this.shouldResizeOnMaximize() && this.isMaximized(win)) {
-                    this.resizeWindow(win);
-                }
-            });
-            this.windowEventIds.push(() => win.disconnect(sizeChangedId));
+                });
+                this.windowEventIds.push(() => win.disconnect(sizeChangedId));
+            }
+            else {
+                const maximizeId = win.connect('notify::maximized-horizontally', () => {
+                    if (this.shouldResizeOnMaximize() && this.isMaximized(win)) {
+                        this.resizeWindow(win);
+                    }
+                });
+                this.windowEventIds.push(() => win.disconnect(maximizeId));
+            }
 
             return GLib.SOURCE_REMOVE;
         }));
