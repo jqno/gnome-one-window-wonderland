@@ -26,6 +26,9 @@ export default class OneWindowWonderlandExtension extends Extension {
             global.display.connect('window-created', (_display, win) => { this.onWindowCreated(win); }),
             global.display.connect('window-entered-monitor', (_display, _monitorIndex, win) => { this.resizeWindow(win); })
         ];
+
+        // Closing the laptop lid somehow disables the extension, so upon opening the lid we must re-connect
+        global.get_window_actors().forEach(act => { this.connectWindowSignals(act.meta_window); });
     }
 
     disable() {
@@ -38,6 +41,7 @@ export default class OneWindowWonderlandExtension extends Extension {
         }
         this.settings = null;
         this.eventIds = [];
+        this.windowEventIds = [];
         this.glibIdleIds = [];
     }
 
@@ -68,37 +72,40 @@ export default class OneWindowWonderlandExtension extends Extension {
         });
 
         this.glibIdleIds.push(GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
-            const appName = this.getAppName(win);
-            const isForced = this.isForcedWindow(appName);
-            if (isForced) {
-                const resizeId = win.connect('position-changed', () => {
-                    this.resizeWindow(win);
-                });
-                this.windowEventIds.push(() => win.disconnect(resizeId));
-
-                const maximizeId = win.connect('notify::maximized-horizontally', () => {
-                    if (this.isMaximized(win)) {
-                        this.resizeWindow(win);
-                    }
-                });
-                this.windowEventIds.push(() => win.disconnect(maximizeId));
-
-                const sizeChangedId = win.connect('size-changed', () => {
-                    this.resizeWindow(win);
-                });
-                this.windowEventIds.push(() => win.disconnect(sizeChangedId));
-            }
-            else {
-                const maximizeId = win.connect('notify::maximized-horizontally', () => {
-                    if (this.shouldResizeOnMaximize() && this.isMaximized(win)) {
-                        this.resizeWindow(win);
-                    }
-                });
-                this.windowEventIds.push(() => win.disconnect(maximizeId));
-            }
-
+            this.connectWindowSignals(win);
             return GLib.SOURCE_REMOVE;
         }));
+    }
+
+    connectWindowSignals(win) {
+        const appName = this.getAppName(win);
+        const isForced = this.isForcedWindow(appName);
+        if (isForced) {
+            const resizeId = win.connect('position-changed', () => {
+                this.resizeWindow(win);
+            });
+            this.windowEventIds.push(() => win.disconnect(resizeId));
+
+            const maximizeId = win.connect('notify::maximized-horizontally', () => {
+                if (this.isMaximized(win)) {
+                    this.resizeWindow(win);
+                }
+            });
+            this.windowEventIds.push(() => win.disconnect(maximizeId));
+
+            const sizeChangedId = win.connect('size-changed', () => {
+                this.resizeWindow(win);
+            });
+            this.windowEventIds.push(() => win.disconnect(sizeChangedId));
+        }
+        else {
+            const maximizeId = win.connect('notify::maximized-horizontally', () => {
+                if (this.shouldResizeOnMaximize() && this.isMaximized(win)) {
+                    this.resizeWindow(win);
+                }
+            });
+            this.windowEventIds.push(() => win.disconnect(maximizeId));
+        }
     }
 
     resizeWindow(win) {
